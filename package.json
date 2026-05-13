@@ -1,0 +1,21 @@
+{
+  "name": "antd-ui-builder",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "antd": "^5.12.0",
+    "react-grid-layout": "^1.4.4",
+    "@ant-design/icons": "^5.2.6",
+    "prismjs": "^1.29.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.0.8"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  }
+}
