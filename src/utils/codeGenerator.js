@@ -124,7 +124,7 @@ function itemToJSX(item, indent = '      ') {
     const inner = children.length
       ? '\n' + nestedItemsJSX(children, indent + '  ') + '\n' + indent
       : ''
-    return `${indent}<div style={{ padding: 16, border: '1px solid #d9d9d9', borderRadius: 6 }}>${inner}</div>`
+    return `${indent}<div style={{ padding: 16, position: 'relative', minHeight: 200 }}>${inner}</div>`
   }
 
   if (type === 'TableContainer') {

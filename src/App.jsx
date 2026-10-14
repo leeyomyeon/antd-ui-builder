@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useRef } from 'react'
-import { ConfigProvider, theme, Button, Tooltip } from 'antd'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { ConfigProvider, theme, Button, Tooltip, message } from 'antd'
 import ComponentPalette from './components/ComponentPalette'
 import Canvas from './components/Canvas'
 import CodePreview from './components/CodePreview'
 import OverlayLayer from './components/OverlayLayer'
 import LayoutBuilder from './pages/LayoutBuilder'
+import { saveProject, loadProject } from './utils/firebase'
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('canvas') // 'canvas' | 'layout'
@@ -17,9 +18,51 @@ export default function App() {
   const isResizing = useRef(false)
   const startX = useRef(0)
   const startWidth = useRef(0)
-
+  const [saving, setSaving] = useState(false)
+  const [shareUrl, setShareUrl] = useState(null)
   const handleClear = () => setItems([])
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const id = await saveProject({
+        items,
+        overlays,
+        templates,
+        selectedLayoutId,
+        layoutChildren,
+      })
+      const url = `${window.location.origin}${window.location.pathname}?id=${id}`
+      setShareUrl(url)
+      await navigator.clipboard.writeText(url)
+      message.success('저장됨! 링크가 클립보드에 복사됐어요')
+    } catch (e) {
+      message.error('저장 실패: ' + e.message)
+    } finally {
+      setSaving(false)
+    }
+  }
 
+  // 페이지 로드 시 URL에 id 있으면 자동 로드
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get('id')
+    if (!id) return
+
+    message.loading('불러오는 중...', 0) // 로딩 메시지 표시
+
+    loadProject(id).then(data => {
+      if (data.items) setItems(data.items)
+      if (data.overlays) setOverlays(data.overlays)
+      if (data.templates) setTemplates(data.templates)
+      if (data.selectedLayoutId) setSelectedLayoutId(data.selectedLayoutId)
+      if (data.layoutChildren) setLayoutChildren(data.layoutChildren)
+      message.destroy() // 로딩 메시지 제거
+      message.success('프로젝트 불러오기 완료')
+    }).catch(e => {
+      message.destroy()
+      message.error('불러오기 실패: ' + e.message)
+    })
+  }, [])
   const handleMouseDown = useCallback((e) => {
     isResizing.current = true
     startX.current = e.clientX
@@ -141,11 +184,23 @@ export default function App() {
 
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
             {activeTab === 'canvas' && (
-              <Tooltip title="캔버스 초기화">
-                <Button size="small" onClick={handleClear} disabled={items.length === 0} style={{ fontSize: 11 }}>
-                  초기화
-                </Button>
-              </Tooltip>
+              <>
+                <Tooltip title="캔버스 초기화">
+                  <Button size="small" onClick={handleClear} disabled={items.length === 0} style={{ fontSize: 11 }}>
+                    초기화
+                  </Button>
+                </Tooltip>
+                <Tooltip title="저장 및 링크 복사">
+                  <Button
+                    size="small"
+                    loading={saving}
+                    onClick={handleSave}
+                    style={{ fontSize: 11 }}
+                  >
+                    저장 & 공유
+                  </Button>
+                </Tooltip>
+              </>
             )}
             <div style={{ fontSize: 11, color: '#444' }}>antd + react-grid-layout</div>
           </div>

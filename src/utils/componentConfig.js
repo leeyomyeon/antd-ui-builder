@@ -2,7 +2,7 @@ export const COMPONENT_PALETTE = [
   {
     category: '컨테이너',
     items: [
-      { type: 'Container', label: 'Container', defaultW: 8, defaultH: 6, props: { children: [] } },
+      { type: 'Container', label: 'Container', defaultW: 20, defaultH: 32, props: { children: [] } },
       { type: 'TableContainer', label: 'Table (커스텀)', defaultW: 12, defaultH: 10, props: { columns: ['컬럼1', '컬럼2', '컬럼3'], rows: 3, children: [] } },
     ]
   },

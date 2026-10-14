@@ -8,7 +8,7 @@ Antd 컴포넌트를 드래그앤드롭으로 배치하면 JSX 코드를 자동 
 - antd 5.x
 - react-grid-layout (캔버스 드래그앤드롭)
 - prismjs (코드 하이라이팅)
-
+- Google Firestore
 ## 실행
 npm install
 npm run dev
@@ -20,6 +20,7 @@ npm run dev
 4. **오버레이** - Alert, Spin, Modal, Drawer on/off 토글 (Canvas 영역 안에서만 렌더링)
 5. **Layout Builder** - 행×열 그리드 설계, 셀 병합, 행 높이/열 너비 드래그 조절, 템플릿 저장
 6. **Code Preview** - JSX 코드 자동 생성 + syntax highlight, 너비 조절 가능
+7. **저장 및 공유** - Google Firestore에 배치했던 컴포넌트를 저장 및 공유하는 기능
 
 ## 파일 구조
 src/

@@ -13,7 +13,7 @@ function renderComponent(type, props) {
   switch (type) {
     case 'Input': return <Input {...p} />
     case 'Input.Password': return <Input.Password {...p} />
-    case 'Input.TextArea': return <Input.TextArea {...p} />
+    case 'Input.TextArea': return <Input.TextArea {...p} rows={null} style={{ width: '100%', height: '100%', resize: 'none', minHeight: 'unset' }} />
     case 'InputNumber': return <InputNumber style={{ width: '100%' }} {...p} />
     case 'Select': return <Select style={{ width: '100%' }} {...p} />
     case 'DatePicker': return <DatePicker style={{ width: '100%' }} {...p} />
@@ -71,7 +71,7 @@ export default function NestedCanvasItem({ item, onRemove }) {
       >
         ✕
       </div>
-      <div style={{ width: '100%', pointerEvents: 'none' }}>
+      <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
         {renderComponent(item.type, item.props)}
       </div>
     </div>

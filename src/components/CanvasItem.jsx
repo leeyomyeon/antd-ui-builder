@@ -17,7 +17,7 @@ function renderComponent(type, props) {
   switch (type) {
     case 'Input': return <Input {...p} />
     case 'Input.Password': return <Input.Password {...p} />
-    case 'Input.TextArea': return <Input.TextArea {...p} />
+    case 'Input.TextArea': return <Input.TextArea {...p} rows={null} style={{ width: '100%', height: '100%', resize: 'none', minHeight: 'unset' }} />
     case 'InputNumber': return <InputNumber style={{ width: '100%' }} {...p} />
     case 'Select': return <Select style={{ width: '100%' }} {...p} />
     case 'DatePicker': return <DatePicker style={{ width: '100%' }} {...p} />
@@ -98,7 +98,7 @@ function TableSettings({ item, onUpdate }) {
   )
 }
 
-function TableBody({ item, onChildrenChange, onMergesChange, mergeMode }) {
+function TableBody({ item, onChildrenChange, onMergesChange, mergeMode, onMergeModeChange }) {
   const cols = item.props.columns || []
   const rows = item.props.rows || 3
   const cellChildren = item.cellChildren || {}
@@ -144,6 +144,7 @@ function TableBody({ item, onChildrenChange, onMergesChange, mergeMode }) {
     }
     onMergesChange(next)
     setSelected([])
+    onMergeModeChange(false)  // 추가
   }
 
   const handleSplit = () => {
@@ -244,9 +245,9 @@ function TableBody({ item, onChildrenChange, onMergesChange, mergeMode }) {
                       onPointerDown={(e) => { if (!mergeMode) e.stopPropagation() }}
                     >
                       <NestedCanvas
-                        containerId={`${item.id}-${key}`}
-                        children={cellChildren[key] || []}
-                        onChildrenChange={(children) => onChildrenChange(children, key)}
+                        containerId={`${item.id}-${root}`}
+                        children={cellChildren[root] || []}
+                        onChildrenChange={(children) => onChildrenChange(children, root)}
                         containerWidth={colWidth * colSpan - 4}
                       />
                     </div>
@@ -407,12 +408,13 @@ export default function CanvasItem({ item, onRemove, onChildrenChange, onPropsCh
             onChildrenChange={onChildrenChange}
             onMergesChange={onMergesChange}
             mergeMode={mergeMode}
+            onMergeModeChange={onMergeModeChange}
           />
         </div>
       )}
 
       {!isContainer && (
-        <div style={{ width: '100%', pointerEvents: 'none' }}>
+        <div style={{ width: '100%', height: '100%', pointerEvents: 'none' }}>
           {renderComponent(item.type, item.props)}
         </div>
       )}

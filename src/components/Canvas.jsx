@@ -5,7 +5,7 @@ import LayoutCanvas from './LayoutCanvas'
 
 const COLS = 12
 const ROW_HEIGHT = 40
-const CANVAS_WIDTH = 800
+const CANVAS_WIDTH = 1600
 
 export default function Canvas({ items, setItems, templates, selectedLayoutId, onSelectLayout, layoutChildren, onLayoutChildrenChange }) {
 
@@ -144,6 +144,7 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
             isDraggable
             isResizable
             margin={[8, 8]}
+            resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']}
             containerPadding={[0, 0]}
           >
             {items.map(item => (
