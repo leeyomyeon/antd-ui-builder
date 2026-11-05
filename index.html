@@ -4,11 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Antd UI Builder</title>
-    <script type="module" crossorigin src="/antd-ui-builder/assets/index-CYMc3hwP.js"></script>
-    <link rel="modulepreload" crossorigin href="/antd-ui-builder/assets/antd-vendor-DjRbR6V8.js">
-    <link rel="modulepreload" crossorigin href="/antd-ui-builder/assets/grid-vendor-C8J2ZYfz.js">
-    <link rel="modulepreload" crossorigin href="/antd-ui-builder/assets/prism-vendor-CnkDxhpw.js">
-    <link rel="stylesheet" crossorigin href="/antd-ui-builder/assets/index-Dd5YhDw7.css">
+    <script>
+      // 첫 렌더 전에 테마를 적용해 깜빡임 방지 (App.jsx의 THEME_KEY와 동일)
+      try {
+        var t = localStorage.getItem('ui-builder-theme')
+        if (t !== 'dark' && t !== 'light') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        document.documentElement.dataset.theme = t
+      } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="/antd-ui-builder/assets/index-RDhVudba.js"></script>
+    <link rel="modulepreload" crossorigin href="/antd-ui-builder/assets/antd-vendor-BwaAkAgm.js">
+    <link rel="modulepreload" crossorigin href="/antd-ui-builder/assets/grid-vendor-2FKO2bfD.js">
+    <link rel="modulepreload" crossorigin href="/antd-ui-builder/assets/prism-vendor-CAhwirK_.js">
+    <link rel="stylesheet" crossorigin href="/antd-ui-builder/assets/index-Bpp6pEKm.css">
   </head>
   <body>
     <div id="root"></div>
