@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { ConfigProvider, theme, Button, Tooltip, message } from 'antd'
+import { App as AntApp, ConfigProvider, theme, Button, Tooltip } from 'antd'
 import ComponentPalette from './components/ComponentPalette'
 import Canvas from './components/Canvas'
 import CodePreview from './components/CodePreview'
@@ -8,6 +8,27 @@ import LayoutBuilder from './pages/LayoutBuilder'
 import { saveProject, loadProject } from './utils/firebase'
 
 export default function App() {
+  return (
+    <ConfigProvider
+      theme={{
+        algorithm: theme.darkAlgorithm,
+        token: {
+          colorPrimary: '#6366f1',
+          borderRadius: 5,
+          colorBgContainer: '#1a1a1a',
+          colorBorder: '#2a2a2a',
+        },
+      }}
+    >
+      <AntApp component={false}>
+        <Builder />
+      </AntApp>
+    </ConfigProvider>
+  )
+}
+
+function Builder() {
+  const { message } = AntApp.useApp()
   const [activeTab, setActiveTab] = useState('canvas') // 'canvas' | 'layout'
   const [items, setItems] = useState([])
   const [overlays, setOverlays] = useState([])
@@ -130,17 +151,6 @@ export default function App() {
   const selectedTemplate = templates.find(t => t.id === selectedLayoutId) || null
 
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.darkAlgorithm,
-        token: {
-          colorPrimary: '#6366f1',
-          borderRadius: 5,
-          colorBgContainer: '#1a1a1a',
-          colorBorder: '#2a2a2a',
-        },
-      }}
-    >
       <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
 
         {/* 상단 툴바 */}
@@ -262,6 +272,5 @@ export default function App() {
           )}
         </div>
       </div>
-    </ConfigProvider>
   )
 }

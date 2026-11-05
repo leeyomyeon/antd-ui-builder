@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { message, Switch } from 'antd'
+import { App, Switch } from 'antd'
 import { generateCode } from '../utils/codeGenerator'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-jsx'
 import 'prismjs/themes/prism-tomorrow.css'
 
 export default function CodePreview({ items, overlays = [], onToggleOverlay, onRemoveOverlay, selectedTemplate = null, layoutChildren = {}, width = 320 }) {
+  const { message } = App.useApp()
   const [tab, setTab] = useState('canvas')
   const [copied, setCopied] = useState(false)
   const codeRef = useRef(null)

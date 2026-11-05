@@ -38,8 +38,12 @@ function collectImports(items, set = new Set()) {
   return set
 }
 
+// 캔버스(renderComponent)에서 width: 100%로 그리는 컴포넌트 — 생성 코드도 같은 폭이 되도록
+const FULL_WIDTH_TYPES = ['Select', 'InputNumber', 'DatePicker']
+
 function simpleComponentJSX(type, props, indent) {
-  const propsStr = propsToString(props)
+  const widthStyle = FULL_WIDTH_TYPES.includes(type) && !props?.style ? `style={{ width: '100%' }}` : ''
+  const propsStr = [propsToString(props), widthStyle].filter(Boolean).join(' ')
   const sp = propsStr ? ' ' : ''
   if (props?.children && typeof props.children === 'string') {
     return `${indent}<${type}${sp}${propsStr}>${props.children}</${type}>`
@@ -47,13 +51,93 @@ function simpleComponentJSX(type, props, indent) {
   return `${indent}<${type}${sp}${propsStr} />`
 }
 
-function nestedItemsJSX(children, indent) {
-  if (!children?.length) return ''
-  const sorted = [...children].sort((a, b) => {
-    if (a.layout.y !== b.layout.y) return a.layout.y - b.layout.y
-    return a.layout.x - b.layout.x
+const GRID_COLS = 12
+
+// 구간 [start, end)가 겹치는 아이템끼리 묶음 (axis: 'y' → 같은 줄, 'x' → 같은 열)
+function groupByAxis(items, axis) {
+  const size = axis === 'y' ? 'h' : 'w'
+  const sorted = [...items].sort((a, b) => a.layout[axis] - b.layout[axis])
+  const groups = []
+  sorted.forEach(item => {
+    const start = item.layout[axis]
+    const end = start + item.layout[size]
+    const last = groups[groups.length - 1]
+    if (last && start < last.end) {
+      last.items.push(item)
+      last.end = Math.max(last.end, end)
+    } else {
+      groups.push({ start, end, items: [item] })
+    }
   })
-  return sorted.map(c => simpleComponentJSX(c.type, c.props, indent)).join('\n')
+  return groups
+}
+
+// 그리드 칸 → antd 24 span (누적 반올림으로 한 Row 합계가 24를 넘지 않게)
+function toSpan(pos, cols) {
+  return Math.round((pos / cols) * 24)
+}
+
+// bare: 부모가 일반 블록일 때만 전체 폭 아이템을 감싸지 않고 그대로 출력
+function rowJSX(groups, indent, cols, bare) {
+  const only = groups.length === 1 && groups[0].items.length === 1 ? groups[0] : null
+  if (only && only.start === 0 && only.end === cols) {
+    if (bare) return itemToJSX(only.items[0], indent)
+    // Flex 세로 정렬 안에서 Button/Switch 등이 늘어나지 않도록 div로 감쌈
+    return [`${indent}<div>`, itemToJSX(only.items[0], indent + '  '), `${indent}</div>`].join('\n')
+  }
+
+  const i1 = indent + '  '
+  const i2 = i1 + '  '
+  let prevEnd = 0
+  const colsJSX = groups.map(group => {
+    const span = toSpan(group.end, cols) - toSpan(group.start, cols)
+    const offset = toSpan(group.start, cols) - toSpan(prevEnd, cols)
+    prevEnd = group.end
+    // 같은 열에 세로로 쌓인 아이템은 열 너비 기준으로 다시 배치
+    const inner = group.items.length === 1
+      ? itemToJSX(group.items[0], i2)
+      : gridJSX(
+          group.items.map(it => ({ ...it, layout: { ...it.layout, x: it.layout.x - group.start } })),
+          i2, group.end - group.start
+        )
+    return [
+      `${i1}<Col span={${span}}${offset > 0 ? ` offset={${offset}}` : ''}>`,
+      inner,
+      `${i1}</Col>`,
+    ].join('\n')
+  })
+  return [`${indent}<Row gutter={[8, 8]}>`, ...colsJSX, `${indent}</Row>`].join('\n')
+}
+
+// 세로 줄 단위로 나눈 뒤, 각 줄을 가로 열 그룹 목록으로 반환
+function splitRows(items) {
+  const bands = groupByAxis(items, 'y')
+  if (bands.length > 1) return bands.flatMap(band => splitRows(band.items))
+  const groups = groupByAxis(items, 'x')
+  // 더 이상 가로/세로로 나눌 수 없는 배치는 한 줄에 하나씩 쌓음
+  if (groups.length === 1 && items.length > 1) {
+    return [...items]
+      .sort((a, b) => a.layout.y - b.layout.y || a.layout.x - b.layout.x)
+      .map(it => [{ start: it.layout.x, end: it.layout.x + it.layout.w, items: [it] }])
+  }
+  return [groups]
+}
+
+// react-grid-layout 배치(x, y, w, h)를 Row/Col 구조로 변환
+function gridJSX(items, indent, cols = GRID_COLS) {
+  if (!items?.length) return ''
+  const rows = splitRows(items)
+  if (rows.length === 1) return rowJSX(rows[0], indent, cols, true)
+  // 줄 사이 간격은 캔버스 margin(8px)과 맞춤
+  return [
+    `${indent}<Flex vertical gap={8}>`,
+    ...rows.map(groups => rowJSX(groups, indent + '  ', cols, false)),
+    `${indent}</Flex>`,
+  ].join('\n')
+}
+
+function nestedItemsJSX(children, indent) {
+  return gridJSX(children, indent)
 }
 
 function tableContainerJSX(item, indent) {
@@ -209,13 +293,9 @@ export function generateCode(items, overlays = [], selectedTemplate = null, layo
     usedImports.add('Row')
     usedImports.add('Col')
     usedImports.add('Card')
-    selectedTemplate.rows.forEach(row => {
-      row.cols.forEach(col => {
-        const key = `${selectedTemplate.id}-${col.id}`
-        const children = layoutChildren[key] || []
-        collectImports(children, usedImports)
-      })
-    })
+    Object.keys(layoutChildren)
+      .filter(key => key.startsWith(`${selectedTemplate.id}-`))
+      .forEach(key => collectImports(layoutChildren[key], usedImports))
   }
 
   overlays.forEach(o => {
@@ -230,20 +310,21 @@ export function generateCode(items, overlays = [], selectedTemplate = null, layo
     return `// 왼쪽 팔레트에서 컴포넌트를 드래그하세요`
   }
 
-  const importLine = usedImports.size
-    ? `import { ${[...usedImports].sort().join(', ')} } from 'antd'`
-    : ''
-
-  const sorted = [...items].sort((a, b) => {
-    if (a.layout.y !== b.layout.y) return a.layout.y - b.layout.y
-    return a.layout.x - b.layout.x
-  })
-
   const layoutCode = selectedTemplate
     ? layoutTemplateJSX(selectedTemplate, layoutChildren) + '\n'
     : ''
 
-  const componentLines = sorted.map(item => itemToJSX(item)).join('\n')
+  const componentLines = gridJSX(items, '      ')
+
+  if (/<Col[ >]/.test(layoutCode + componentLines)) {
+    usedImports.add('Row')
+    usedImports.add('Col')
+  }
+  if (/<Flex[ >]/.test(layoutCode + componentLines)) usedImports.add('Flex')
+
+  const importLine = usedImports.size
+    ? `import { ${[...usedImports].sort().join(', ')} } from 'antd'`
+    : ''
 
   const overlayStates = overlays.map(o =>
     `  const [${stateVarName(o)}, set${capitalize(stateVarName(o))}] = useState(false)`

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react'
-import { Input, Button, Tooltip, InputNumber, message } from 'antd'
+import { App, Input, Button, Tooltip, InputNumber } from 'antd'
 import {
   createTemplate, getEffectiveMerges, getCellTitle,
   updateCellTitle, updateCellHeight, getCellHeight,
@@ -88,8 +88,10 @@ function RowResizer({ onMouseDown }) {
   return (
     <div
       onMouseDown={onMouseDown}
+      onClick={(e) => e.stopPropagation()}
       style={{
-        height: 6, cursor: 'row-resize',
+        position: 'absolute', left: 0, right: 0, bottom: -3,
+        height: 6, cursor: 'row-resize', zIndex: 10,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
       onMouseEnter={e => {
@@ -112,6 +114,7 @@ function RowResizer({ onMouseDown }) {
 }
 
 export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, selectedId }) {
+  const { message } = App.useApp()
   const [tpl, setTpl] = useState(createTemplate())
   const [templateName, setTemplateName] = useState('새 레이아웃')
   const [mergeMode, setMergeMode] = useState(false)
@@ -344,8 +347,7 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
             </colgroup>
             <tbody>
               {Array.from({ length: tpl.rows }).map((_, rowIdx) => (
-                <React.Fragment key={rowIdx}>
-                  <tr>
+                <tr key={rowIdx} style={{ height: getCellHeight(tpl, rowIdx) }}>
                     {Array.from({ length: tpl.cols }).map((_, colIdx) => {
                       const key = cellKey(rowIdx, colIdx)
                       const root = find(merges, key)
@@ -410,18 +412,13 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
                               fontSize: 9, color: '#6366f1',
                             }}>✓</div>
                           )}
+
+                          {/* Row 높이 리사이즈 핸들 - 셀 하단 경계 (병합 셀은 마지막 행 기준) */}
+                          <RowResizer onMouseDown={(e) => handleRowResizeMouseDown(e, rowIdx + rowSpan - 1)} />
                         </td>
                       )
                     })}
-                  </tr>
-
-                  {/* Row 높이 리사이즈 핸들 */}
-                  <tr>
-                    <td colSpan={tpl.cols} style={{ padding: 0, border: 'none' }}>
-                      <RowResizer onMouseDown={(e) => handleRowResizeMouseDown(e, rowIdx)} />
-                    </td>
-                  </tr>
-                </React.Fragment>
+                </tr>
               ))}
             </tbody>
           </table>

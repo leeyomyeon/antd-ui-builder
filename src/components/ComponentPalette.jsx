@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
-import { message } from 'antd'
+import { App } from 'antd'
 import { COMPONENT_PALETTE } from '../utils/componentConfig'
 import { OVERLAY_COMPONENTS } from '../utils/overlayConfig'
 
 export default function ComponentPalette({ onAddOverlay, overlays }) {
+  const { message } = App.useApp()
   const [openCategories, setOpenCategories] = useState(
     COMPONENT_PALETTE.map(c => c.category)
   )

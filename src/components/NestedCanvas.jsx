@@ -54,6 +54,7 @@ export default function NestedCanvas({ containerId, children = [], onChildrenCha
       onPointerDown={(e) => e.stopPropagation()}
       style={{
         minHeight: 80,
+        height: '100%',
         width: '100%',
         background: 'rgba(99,102,241,0.04)',
         borderRadius: 4,

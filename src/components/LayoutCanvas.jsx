@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useLayoutEffect, useState } from 'react'
 import { Select } from 'antd'
 import NestedCanvas from './NestedCanvas'
 import { find, getSpan, cellKey } from '../utils/mergeUtils'
 import { getEffectiveMerges, getCellTitle, getCellHeight } from '../utils/layoutStore'
 
-function CardCell({ cellKey: key, col, rowSpan, colSpan, title, height, templateId, colChildren, onChildrenChange, colWidth }) {
+function CardCell({ cellKey: key, rowSpan, colSpan, title, height, templateId, colChildren, onChildrenChange, cellWidth }) {
   return (
     <td
       rowSpan={rowSpan}
@@ -43,7 +43,7 @@ function CardCell({ cellKey: key, col, rowSpan, colSpan, title, height, template
             containerId={`layout-${templateId}-${key}`}
             children={colChildren || []}
             onChildrenChange={onChildrenChange}
-            containerWidth={colWidth * colSpan - 8}
+            containerWidth={cellWidth - 8}
           />
         </div>
       </div>
@@ -55,20 +55,31 @@ export default function LayoutCanvas({ templates, selectedId, onSelect, layoutCh
   const tableRef = useRef(null)
   const [tableWidth, setTableWidth] = useState(0)
 
-  useEffect(() => {
+  const selectedTemplate = templates.find(t => t.id === selectedId)
+  const hasTable = !!selectedTemplate
+
+  // 템플릿이 나중에 선택/로드되면 그때 테이블이 마운트되므로 hasTable로 다시 연결
+  useLayoutEffect(() => {
     if (!tableRef.current) return
+    setTableWidth(tableRef.current.offsetWidth)
     const o = new ResizeObserver(entries => {
       for (const entry of entries) setTableWidth(entry.contentRect.width)
     })
     o.observe(tableRef.current)
     return () => o.disconnect()
-  }, [])
-
-  const selectedTemplate = templates.find(t => t.id === selectedId)
+  }, [hasTable])
 
   if (templates.length === 0) return null
 
-  const colWidth = tableWidth ? tableWidth / (selectedTemplate?.cols || 1) : 100
+  const colRatios = selectedTemplate
+    ? (() => {
+        const widths = Array.from({ length: selectedTemplate.cols }, (_, i) =>
+          selectedTemplate.colWidths?.[i] ?? (100 / selectedTemplate.cols)
+        )
+        const total = widths.reduce((s, w) => s + w, 0)
+        return widths.map(w => w / total)
+      })()
+    : []
 
   return (
     <div style={{
@@ -101,18 +112,12 @@ export default function LayoutCanvas({ templates, selectedId, onSelect, layoutCh
 
       {/* 레이아웃 테이블 */}
       {selectedTemplate && (
-        <div style={{ padding: '8px 12px' }} ref={tableRef}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <div style={{ padding: '8px 12px' }}>
+          <table ref={tableRef} style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
             <colgroup>
-              {(() => {
-                const widths = Array.from({ length: selectedTemplate.cols }, (_, i) =>
-                  selectedTemplate.colWidths?.[i] ?? (100 / selectedTemplate.cols)
-                )
-                const total = widths.reduce((s, w) => s + w, 0)
-                return widths.map((w, i) => (
-                  <col key={i} style={{ width: `${(w / total) * 100}%` }} />
-                ))
-              })()}
+              {colRatios.map((r, i) => (
+                <col key={i} style={{ width: `${r * 100}%` }} />
+              ))}
             </colgroup>
             <tbody>
               {(() => {
@@ -132,6 +137,7 @@ export default function LayoutCanvas({ templates, selectedId, onSelect, layoutCh
                       const { rowSpan, colSpan } = getSpan(merges, root)
                       const title = getCellTitle(selectedTemplate, key)
                       const height = getCellHeight(selectedTemplate, rowIdx)
+                      const spanRatio = colRatios.slice(colIdx, colIdx + colSpan).reduce((s, r) => s + r, 0)
 
                       return (
                         <CardCell
@@ -146,7 +152,7 @@ export default function LayoutCanvas({ templates, selectedId, onSelect, layoutCh
                           onChildrenChange={(children) =>
                             onLayoutChildrenChange(`${selectedTemplate.id}-${key}`, children)
                           }
-                          colWidth={colWidth}
+                          cellWidth={tableWidth ? tableWidth * spanRatio : 100}
                         />
                       )
                     })}

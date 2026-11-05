@@ -1,13 +1,27 @@
-import React from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import GridLayout from 'react-grid-layout'
 import CanvasItem from './CanvasItem'
 import LayoutCanvas from './LayoutCanvas'
 
 const COLS = 12
 const ROW_HEIGHT = 40
-const CANVAS_WIDTH = 1600
+const CANVAS_PADDING = 16
+const MIN_GRID_WIDTH = 600
 
 export default function Canvas({ items, setItems, templates, selectedLayoutId, onSelectLayout, layoutChildren, onLayoutChildrenChange }) {
+  const scrollerRef = useRef(null)
+  const [availableWidth, setAvailableWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    setAvailableWidth(scrollerRef.current.clientWidth)
+    const o = new ResizeObserver(entries => {
+      for (const entry of entries) setAvailableWidth(entry.contentRect.width)
+    })
+    o.observe(scrollerRef.current)
+    return () => o.disconnect()
+  }, [])
+
+  const gridWidth = Math.max(MIN_GRID_WIDTH, availableWidth - CANVAS_PADDING * 2)
 
   const handleDrop = (e) => {
     e.preventDefault()
@@ -16,9 +30,9 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
 
     const componentDef = JSON.parse(raw)
     const canvasRect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - canvasRect.left
-    const y = e.clientY - canvasRect.top
-    const gridX = Math.min(Math.floor((x / CANVAS_WIDTH) * COLS), COLS - componentDef.defaultW)
+    const x = e.clientX - canvasRect.left - CANVAS_PADDING
+    const y = e.clientY - canvasRect.top - CANVAS_PADDING
+    const gridX = Math.min(Math.floor((x / gridWidth) * COLS), COLS - componentDef.defaultW)
     const gridY = Math.floor(y / ROW_HEIGHT)
 
     const id = `${componentDef.type}-${Date.now()}`
@@ -91,7 +105,7 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
   }))
 
   return (
-    <div style={{
+    <div ref={scrollerRef} style={{
       position: 'absolute',
       top: 0, left: 0, right: 0, bottom: 0,
       overflow: 'auto',
@@ -110,7 +124,7 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
 
       {/* 일반 컴포넌트 캔버스 */}
       <div
-        style={{ flex: 1, position: 'relative', minHeight: 400 }}
+        style={{ flex: '1 0 auto', position: 'relative', minHeight: 400, minWidth: gridWidth + CANVAS_PADDING * 2 }}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
       >
@@ -133,13 +147,13 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
           pointerEvents: 'none', opacity: 0.6,
         }} />
 
-        <div style={{ padding: 16, minHeight: '100%' }}>
+        <div style={{ padding: CANVAS_PADDING, minHeight: '100%' }}>
           <GridLayout
             className="layout"
             layout={layout}
             cols={COLS}
             rowHeight={ROW_HEIGHT}
-            width={CANVAS_WIDTH}
+            width={gridWidth}
             onLayoutChange={handleLayoutChange}
             isDraggable
             isResizable
