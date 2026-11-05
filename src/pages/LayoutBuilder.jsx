@@ -211,7 +211,7 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
   })()
 
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: '#0f0f0f', display: 'flex' }}>
+    <div style={{ flex: 1, overflow: 'auto', background: 'var(--bg-canvas)', display: 'flex' }}>
 
       {/* 편집 영역 */}
       <div style={{ flex: 1, padding: 24, overflow: 'auto' }}>
@@ -231,21 +231,21 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
         <div style={{
           display: 'flex', alignItems: 'center', gap: 16,
           marginBottom: 16, padding: '10px 14px',
-          background: '#141414', borderRadius: 6, border: '1px solid #222',
+          background: 'var(--bg-panel)', borderRadius: 6, border: '1px solid var(--line)',
           flexWrap: 'wrap',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 11, color: '#666' }}>행</span>
+            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>행</span>
             <InputNumber size="small" min={1} max={10} value={tpl.rows}
               onChange={(v) => handleDimChange('rows', v)} style={{ width: 60 }} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 11, color: '#666' }}>열</span>
+            <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>열</span>
             <InputNumber size="small" min={1} max={8} value={tpl.cols}
               onChange={(v) => handleDimChange('cols', v)} style={{ width: 60 }} />
           </div>
 
-          <div style={{ width: 1, height: 20, background: '#2a2a2a' }} />
+          <div style={{ width: 1, height: 20, background: 'var(--line-strong)' }} />
 
           <Tooltip title={mergeMode ? '병합 모드 OFF' : '병합 모드 ON'}>
             <div
@@ -253,9 +253,9 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
               style={{
                 padding: '3px 10px', fontSize: 11, borderRadius: 4,
                 cursor: 'pointer', userSelect: 'none',
-                background: mergeMode ? '#6366f1' : '#1a1a1a',
-                color: mergeMode ? '#fff' : '#666',
-                border: `1px solid ${mergeMode ? '#6366f1' : '#333'}`,
+                background: mergeMode ? '#6366f1' : 'var(--bg-control)',
+                color: mergeMode ? '#fff' : 'var(--text-dim)',
+                border: `1px solid ${mergeMode ? '#6366f1' : 'var(--line-heavy)'}`,
               }}
             >
               ⊞ 병합 모드
@@ -270,20 +270,20 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
               <button onClick={handleMerge} disabled={!canDoMerge} style={{
                 padding: '3px 10px', fontSize: 11, borderRadius: 4, border: 'none',
                 cursor: canDoMerge ? 'pointer' : 'not-allowed',
-                background: canDoMerge ? '#6366f1' : '#2a2a2a',
-                color: canDoMerge ? '#fff' : '#555',
+                background: canDoMerge ? '#6366f1' : 'var(--line-strong)',
+                color: canDoMerge ? '#fff' : 'var(--text-subtle)',
               }}>병합</button>
               <button onClick={handleSplit} disabled={!canDoSplit} style={{
                 padding: '3px 10px', fontSize: 11, borderRadius: 4,
                 cursor: canDoSplit ? 'pointer' : 'not-allowed',
                 background: 'transparent',
-                color: canDoSplit ? '#aaa' : '#555',
-                border: `1px solid ${canDoSplit ? '#444' : '#2a2a2a'}`,
+                color: canDoSplit ? 'var(--text-secondary)' : 'var(--text-subtle)',
+                border: `1px solid ${canDoSplit ? 'var(--text-faint)' : 'var(--line-strong)'}`,
               }}>분리</button>
               <button onClick={() => setSelected([])} style={{
                 padding: '3px 10px', fontSize: 11, borderRadius: 4,
                 cursor: 'pointer', background: 'transparent',
-                color: '#555', border: '1px solid #333',
+                color: 'var(--text-subtle)', border: '1px solid var(--line-heavy)',
               }}>초기화</button>
             </>
           )}
@@ -291,11 +291,11 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
 
         {/* 그리드 */}
         <div ref={tableRef} style={{
-          background: '#141414', border: '1px solid #222',
+          background: 'var(--bg-panel)', border: '1px solid var(--line)',
           borderRadius: 8, overflow: 'hidden',
         }}>
           {/* Col 너비 조절 핸들 헤더 */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #2a2a2a', position: 'relative', background: '#1a1a2e' }}>
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--line-strong)', position: 'relative', background: 'var(--bg-accent-soft)' }}>
             {Array.from({ length: tpl.cols }).map((_, colIdx) => (
               <div
                 key={colIdx}
@@ -308,7 +308,7 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
                   position: 'relative',
                   userSelect: 'none',
                   boxSizing: 'border-box',
-                  borderRight: colIdx < tpl.cols - 1 ? '1px solid #2a2a2a' : 'none',
+                  borderRight: colIdx < tpl.cols - 1 ? '1px solid var(--line-strong)' : 'none',
                 }}
               >
                 C{colIdx + 1}
@@ -369,10 +369,10 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
                           colSpan={colSpan}
                           onClick={() => handleCellClick(key)}
                           style={{
-                            border: `1px solid ${isSelected ? '#6366f1' : '#2a2a2a'}`,
+                            border: `1px solid ${isSelected ? '#6366f1' : 'var(--line-strong)'}`,
                             background: isSelected
                               ? 'rgba(99,102,241,0.12)'
-                              : isMerged ? 'rgba(99,102,241,0.04)' : '#161616',
+                              : isMerged ? 'rgba(99,102,241,0.04)' : 'var(--bg-item)',
                             cursor: mergeMode ? 'cell' : 'default',
                             verticalAlign: 'top',
                             height: cellHeight,
@@ -392,7 +392,7 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
 
                           {!mergeMode && (
                             <div style={{ padding: '8px 10px' }}>
-                              <div style={{ fontSize: 9, color: '#444', marginBottom: 4 }}>Card 제목</div>
+                              <div style={{ fontSize: 9, color: 'var(--text-faint)', marginBottom: 4 }}>Card 제목</div>
                               <Input
                                 size="small"
                                 value={getCellTitle(tpl, key)}
@@ -400,7 +400,7 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
                                 onClick={(e) => e.stopPropagation()}
                                 style={{ fontSize: 11 }}
                               />
-                              <div style={{ fontSize: 9, color: '#333', marginTop: 6 }}>
+                              <div style={{ fontSize: 9, color: 'var(--text-placeholder)', marginTop: 6 }}>
                                 {key} · h: {cellHeight}px
                               </div>
                             </div>
@@ -427,20 +427,20 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
 
       {/* 저장된 템플릿 목록 */}
       <div style={{
-        width: 220, background: '#141414',
-        borderLeft: '1px solid #222',
+        width: 220, background: 'var(--bg-panel)',
+        borderLeft: '1px solid var(--line)',
         display: 'flex', flexDirection: 'column', flexShrink: 0,
       }}>
         <div style={{
-          padding: '12px 14px', borderBottom: '1px solid #222',
-          fontSize: 11, fontWeight: 600, color: '#666',
+          padding: '12px 14px', borderBottom: '1px solid var(--line)',
+          fontSize: 11, fontWeight: 600, color: 'var(--text-dim)',
           letterSpacing: '0.08em', textTransform: 'uppercase',
         }}>
           저장된 템플릿
         </div>
 
         {templates.length === 0 ? (
-          <div style={{ padding: 16, fontSize: 11, color: '#333', textAlign: 'center', marginTop: 20 }}>
+          <div style={{ padding: 16, fontSize: 11, color: 'var(--text-placeholder)', textAlign: 'center', marginTop: 20 }}>
             저장된 레이아웃 없음
           </div>
         ) : (
@@ -449,16 +449,16 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
               <div
                 key={t.id}
                 style={{
-                  padding: '10px 14px', borderBottom: '1px solid #1e1e1e',
+                  padding: '10px 14px', borderBottom: '1px solid var(--line-faint)',
                   display: 'flex', alignItems: 'center', gap: 8,
-                  background: selectedId === t.id ? '#1a1a2e' : 'transparent',
+                  background: selectedId === t.id ? 'var(--bg-accent-soft)' : 'transparent',
                 }}
               >
                 <div onClick={() => onSelect(t.id)} style={{ flex: 1, cursor: 'pointer' }}>
-                  <div style={{ fontSize: 12, color: selectedId === t.id ? '#c4c4ff' : '#888' }}>
+                  <div style={{ fontSize: 12, color: selectedId === t.id ? 'var(--text-accent)' : 'var(--text-muted)' }}>
                     {t.name}
                   </div>
-                  <div style={{ fontSize: 10, color: '#444', marginTop: 2 }}>
+                  <div style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 2 }}>
                     {t.rows}행 × {t.cols}열
                   </div>
                 </div>
@@ -466,17 +466,17 @@ export default function LayoutBuilder({ templates, onSave, onDelete, onSelect, s
                   <Tooltip title="편집">
                     <div
                       onClick={() => handleLoadTemplate(t)}
-                      style={{ fontSize: 10, color: '#555', cursor: 'pointer', padding: '2px 4px' }}
+                      style={{ fontSize: 10, color: 'var(--text-subtle)', cursor: 'pointer', padding: '2px 4px' }}
                       onMouseEnter={e => { e.currentTarget.style.color = '#6366f1' }}
-                      onMouseLeave={e => { e.currentTarget.style.color = '#555' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)' }}
                     >✎</div>
                   </Tooltip>
                   <Tooltip title="삭제">
                     <div
                       onClick={() => onDelete(t.id)}
-                      style={{ fontSize: 10, color: '#555', cursor: 'pointer', padding: '2px 4px' }}
+                      style={{ fontSize: 10, color: 'var(--text-subtle)', cursor: 'pointer', padding: '2px 4px' }}
                       onMouseEnter={e => { e.currentTarget.style.color = '#ff4d4f' }}
-                      onMouseLeave={e => { e.currentTarget.style.color = '#555' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)' }}
                     >✕</div>
                   </Tooltip>
                 </div>

@@ -13,11 +13,11 @@ function CardCell({ cellKey: key, rowSpan, colSpan, title, height, templateId, c
         verticalAlign: 'top',
         padding: 0,
         height,
-        border: '1px solid #222',
+        border: '1px solid var(--line)',
       }}
     >
       <div style={{
-        background: '#161616',
+        background: 'var(--bg-item)',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -26,14 +26,14 @@ function CardCell({ cellKey: key, rowSpan, colSpan, title, height, templateId, c
         {/* Card 헤더 */}
         <div style={{
           padding: '7px 12px',
-          borderBottom: '1px solid #222',
-          fontSize: 12, fontWeight: 500, color: '#888',
-          background: '#141414', flexShrink: 0,
+          borderBottom: '1px solid var(--line)',
+          fontSize: 12, fontWeight: 500, color: 'var(--text-muted)',
+          background: 'var(--bg-panel)', flexShrink: 0,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           {title}
           {(rowSpan > 1 || colSpan > 1) && (
-            <span style={{ fontSize: 9, color: '#444' }}>{rowSpan}×{colSpan}</span>
+            <span style={{ fontSize: 9, color: 'var(--text-faint)' }}>{rowSpan}×{colSpan}</span>
           )}
         </div>
 
@@ -83,17 +83,17 @@ export default function LayoutCanvas({ templates, selectedId, onSelect, layoutCh
 
   return (
     <div style={{
-      borderBottom: '1px solid #222',
-      background: '#0d0d0d',
+      borderBottom: '1px solid var(--line)',
+      background: 'var(--bg-sunken)',
       flexShrink: 0,
     }}>
       {/* 헤더 */}
       <div style={{
         padding: '6px 12px',
         display: 'flex', alignItems: 'center', gap: 10,
-        borderBottom: '1px solid #1e1e1e',
+        borderBottom: '1px solid var(--line-faint)',
       }}>
-        <span style={{ fontSize: 10, color: '#555', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 10, color: 'var(--text-subtle)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
           Layout
         </span>
         <Select
@@ -104,7 +104,7 @@ export default function LayoutCanvas({ templates, selectedId, onSelect, layoutCh
           options={templates.map(t => ({ value: t.id, label: t.name }))}
         />
         {selectedTemplate && (
-          <span style={{ fontSize: 10, color: '#444' }}>
+          <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>
             {selectedTemplate.rows}행 × {selectedTemplate.cols}열
           </span>
         )}

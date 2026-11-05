@@ -15,11 +15,11 @@ function TableSettings({ item, onUpdate }) {
       onPointerDown={(e) => e.stopPropagation()}
       style={{ width: 220, display: 'flex', flexDirection: 'column', gap: 10 }}
     >
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#aaa', borderBottom: '1px solid #333', paddingBottom: 6 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', borderBottom: '1px solid var(--line-heavy)', paddingBottom: 6 }}>
         Table 설정
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 11, color: '#888', width: 50, flexShrink: 0 }}>컬럼 수</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>컬럼 수</span>
         <InputNumber size="small" min={1} max={10} value={cols.length}
           onChange={(val) => {
             const count = Math.max(1, Math.min(10, val || 1))
@@ -29,10 +29,10 @@ function TableSettings({ item, onUpdate }) {
           style={{ width: 60 }} />
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <span style={{ fontSize: 11, color: '#888' }}>컬럼 이름</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>컬럼 이름</span>
         {cols.map((col, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 10, color: '#555', width: 14 }}>{i + 1}</span>
+            <span style={{ fontSize: 10, color: 'var(--text-subtle)', width: 14 }}>{i + 1}</span>
             <Input size="small" value={col}
               onChange={(e) => {
                 const newCols = [...cols]
@@ -43,7 +43,7 @@ function TableSettings({ item, onUpdate }) {
         ))}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontSize: 11, color: '#888', width: 50, flexShrink: 0 }}>행 수</span>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', width: 50, flexShrink: 0 }}>행 수</span>
         <InputNumber size="small" min={1} max={20} value={rows}
           onChange={(val) => onUpdate({ ...item.props, rows: Math.max(1, Math.min(20, val || 1)) })}
           style={{ width: 60 }} />
@@ -129,19 +129,19 @@ function TableBody({ item, onChildrenChange, onMergesChange, mergeMode, onMergeM
           <button onClick={handleMerge} disabled={!canDoMerge} style={{
             padding: '2px 8px', fontSize: 10, borderRadius: 3,
             cursor: canDoMerge ? 'pointer' : 'not-allowed',
-            background: canDoMerge ? '#6366f1' : '#2a2a2a',
-            color: canDoMerge ? '#fff' : '#555', border: 'none',
+            background: canDoMerge ? '#6366f1' : 'var(--line-strong)',
+            color: canDoMerge ? '#fff' : 'var(--text-subtle)', border: 'none',
           }}>병합</button>
           <button onClick={handleSplit} disabled={!canDoSplit} style={{
             padding: '2px 8px', fontSize: 10, borderRadius: 3,
             cursor: canDoSplit ? 'pointer' : 'not-allowed',
-            background: canDoSplit ? '#374151' : '#2a2a2a',
-            color: canDoSplit ? '#d1d5db' : '#555', border: '1px solid #444',
+            background: canDoSplit ? 'var(--line-heavy)' : 'var(--line-strong)',
+            color: canDoSplit ? 'var(--text-secondary)' : 'var(--text-subtle)', border: '1px solid var(--text-faint)',
           }}>분리</button>
           <button onClick={() => setSelected([])} style={{
             padding: '2px 8px', fontSize: 10, borderRadius: 3,
             cursor: 'pointer', background: 'transparent',
-            color: '#555', border: '1px solid #333',
+            color: 'var(--text-subtle)', border: '1px solid var(--line-heavy)',
           }}>초기화</button>
         </div>
       )}
@@ -173,7 +173,7 @@ function TableBody({ item, onChildrenChange, onMergesChange, mergeMode, onMergeM
                     colSpan={colSpan}
                     onClick={(e) => handleCellClick(e, key)}
                     style={{
-                      border: `1px solid ${isSelected ? '#6366f1' : '#2a2a2a'}`,
+                      border: `1px solid ${isSelected ? '#6366f1' : 'var(--line-strong)'}`,
                       verticalAlign: 'top',
                       position: 'relative',
                       background: isSelected
@@ -203,6 +203,7 @@ function TableBody({ item, onChildrenChange, onMergesChange, mergeMode, onMergeM
                         children={cellChildren[root] || []}
                         onChildrenChange={(children) => onChildrenChange(children, root)}
                         containerWidth={colWidth * colSpan - 4}
+                        fitToCell
                       />
                     </div>
                   </td>
@@ -236,8 +237,8 @@ export default function CanvasItem({ item, onRemove, onChildrenChange, onPropsCh
   return (
     <div style={{
       width: '100%', height: '100%',
-      background: isContainer ? '#131320' : '#161616',
-      border: `1px solid ${isContainer ? (mergeMode ? '#6366f166' : '#6366f133') : '#2a2a2a'}`,
+      background: isContainer ? 'var(--bg-accent)' : 'var(--bg-item)',
+      border: `1px solid ${isContainer ? (mergeMode ? '#6366f166' : '#6366f133') : 'var(--line-strong)'}`,
       borderRadius: 6, overflow: 'hidden',
       position: 'relative', display: 'flex', flexDirection: 'column',
       padding: isContainer ? '22px 8px 8px' : '22px 10px 8px',
@@ -246,7 +247,7 @@ export default function CanvasItem({ item, onRemove, onChildrenChange, onPropsCh
       <div style={{
         position: 'absolute', top: 4,
         left: item.type === 'TableContainer' ? 56 : 8,
-        fontSize: 9, color: isContainer ? '#6366f166' : '#444',
+        fontSize: 9, color: isContainer ? '#6366f166' : 'var(--text-faint)',
         letterSpacing: '0.05em', pointerEvents: 'none', userSelect: 'none',
       }}>
         {item.type}
@@ -292,7 +293,7 @@ export default function CanvasItem({ item, onRemove, onChildrenChange, onPropsCh
               width: 26, height: 22,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               cursor: 'pointer', fontSize: 11, zIndex: 100,
-              color: mergeMode ? '#fff' : '#555',
+              color: mergeMode ? '#fff' : 'var(--text-subtle)',
               background: mergeMode ? '#6366f1' : 'transparent',
             }}
             onMouseEnter={e => { if (!mergeMode) e.currentTarget.style.background = '#6366f122' }}
@@ -312,11 +313,11 @@ export default function CanvasItem({ item, onRemove, onChildrenChange, onPropsCh
           position: 'absolute', top: 0, right: 0,
           width: 28, height: 28,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', fontSize: 11, color: '#555', zIndex: 100,
+          cursor: 'pointer', fontSize: 11, color: 'var(--text-subtle)', zIndex: 100,
           borderRadius: '0 6px 0 6px',
         }}
         onMouseEnter={e => { e.currentTarget.style.background = '#ff4d4f'; e.currentTarget.style.color = '#fff' }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#555' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-subtle)' }}
       >
         ✕
       </div>
@@ -346,10 +347,10 @@ export default function CanvasItem({ item, onRemove, onChildrenChange, onPropsCh
               <tr>
                 {(item.props.columns || []).map((col, i) => (
                   <th key={i} style={{
-                    padding: '6px 10px', background: '#1e1e2e',
-                    borderBottom: '1px solid #333',
-                    borderRight: i < (item.props.columns?.length - 1) ? '1px solid #2a2a2a' : 'none',
-                    color: '#888', fontWeight: 500, textAlign: 'left', fontSize: 11,
+                    padding: '6px 10px', background: 'var(--bg-accent-head)',
+                    borderBottom: '1px solid var(--line-heavy)',
+                    borderRight: i < (item.props.columns?.length - 1) ? '1px solid var(--line-strong)' : 'none',
+                    color: 'var(--text-muted)', fontWeight: 500, textAlign: 'left', fontSize: 11,
                   }}>
                     {col}
                   </th>

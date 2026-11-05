@@ -1,4 +1,5 @@
 import { find, getSpan, initMerges, cellKey } from './mergeUtils'
+import { getSizeRule, contentHeight, MAIN_GRID, NESTED_GRID } from './sizeRules'
 
 const IMPORT_MAP = {
   'Input': 'Input', 'Input.Password': 'Input', 'Input.TextArea': 'Input',
@@ -14,7 +15,7 @@ const IMPORT_MAP = {
 function propsToString(props) {
   if (!props || Object.keys(props).length === 0) return ''
   return Object.entries(props)
-    .filter(([key]) => !['children', 'columns', 'rows'].includes(key))
+    .filter(([key]) => !['children', 'columns'].includes(key))
     .map(([key, val]) => {
       if (typeof val === 'string') return `${key}="${val}"`
       if (typeof val === 'boolean') return val ? key : `${key}={false}`
@@ -41,9 +42,22 @@ function collectImports(items, set = new Set()) {
 // 캔버스(renderComponent)에서 width: 100%로 그리는 컴포넌트 — 생성 코드도 같은 폭이 되도록
 const FULL_WIDTH_TYPES = ['Select', 'InputNumber', 'DatePicker']
 
-function simpleComponentJSX(type, props, indent) {
-  const widthStyle = FULL_WIDTH_TYPES.includes(type) && !props?.style ? `style={{ width: '100%' }}` : ''
-  const propsStr = [propsToString(props), widthStyle].filter(Boolean).join(' ')
+// 높이를 채우는 타입은 캔버스에서 차지한 높이(px)를 코드에 반영
+function sizeAttrs(type, props, height) {
+  if (FULL_WIDTH_TYPES.includes(type) && !props?.style) return `style={{ width: '100%' }}`
+  if (height == null || !getSizeRule(type).fill) return ''
+  if (type === 'Table') {
+    // 헤더(small 기준 약 39px)를 뺀 본문 높이만큼 스크롤
+    return props?.scroll ? '' : `scroll={{ y: ${Math.max(0, height - 39)} }}`
+  }
+  if (props?.style) return ''
+  if (type === 'Input.TextArea') return `style={{ height: ${height}, resize: 'none' }}`
+  if (type === 'List') return `style={{ height: ${height}, overflow: 'auto' }}`
+  return `style={{ height: ${height} }}`
+}
+
+function simpleComponentJSX(type, props, indent, height) {
+  const propsStr = [propsToString(props), sizeAttrs(type, props, height)].filter(Boolean).join(' ')
   const sp = propsStr ? ' ' : ''
   if (props?.children && typeof props.children === 'string') {
     return `${indent}<${type}${sp}${propsStr}>${props.children}</${type}>`
@@ -78,12 +92,12 @@ function toSpan(pos, cols) {
 }
 
 // bare: 부모가 일반 블록일 때만 전체 폭 아이템을 감싸지 않고 그대로 출력
-function rowJSX(groups, indent, cols, bare) {
+function rowJSX(groups, indent, cols, bare, grid) {
   const only = groups.length === 1 && groups[0].items.length === 1 ? groups[0] : null
   if (only && only.start === 0 && only.end === cols) {
-    if (bare) return itemToJSX(only.items[0], indent)
+    if (bare) return itemToJSX(only.items[0], indent, grid)
     // Flex 세로 정렬 안에서 Button/Switch 등이 늘어나지 않도록 div로 감쌈
-    return [`${indent}<div>`, itemToJSX(only.items[0], indent + '  '), `${indent}</div>`].join('\n')
+    return [`${indent}<div>`, itemToJSX(only.items[0], indent + '  ', grid), `${indent}</div>`].join('\n')
   }
 
   const i1 = indent + '  '
@@ -95,10 +109,10 @@ function rowJSX(groups, indent, cols, bare) {
     prevEnd = group.end
     // 같은 열에 세로로 쌓인 아이템은 열 너비 기준으로 다시 배치
     const inner = group.items.length === 1
-      ? itemToJSX(group.items[0], i2)
+      ? itemToJSX(group.items[0], i2, grid)
       : gridJSX(
           group.items.map(it => ({ ...it, layout: { ...it.layout, x: it.layout.x - group.start } })),
-          i2, group.end - group.start
+          i2, group.end - group.start, grid
         )
     return [
       `${i1}<Col span={${span}}${offset > 0 ? ` offset={${offset}}` : ''}>`,
@@ -124,20 +138,21 @@ function splitRows(items) {
 }
 
 // react-grid-layout 배치(x, y, w, h)를 Row/Col 구조로 변환
-function gridJSX(items, indent, cols = GRID_COLS) {
+function gridJSX(items, indent, cols = GRID_COLS, grid = MAIN_GRID) {
   if (!items?.length) return ''
   const rows = splitRows(items)
-  if (rows.length === 1) return rowJSX(rows[0], indent, cols, true)
+  if (rows.length === 1) return rowJSX(rows[0], indent, cols, true, grid)
   // 줄 사이 간격은 캔버스 margin(8px)과 맞춤
   return [
     `${indent}<Flex vertical gap={8}>`,
-    ...rows.map(groups => rowJSX(groups, indent + '  ', cols, false)),
+    ...rows.map(groups => rowJSX(groups, indent + '  ', cols, false, grid)),
     `${indent}</Flex>`,
   ].join('\n')
 }
 
+// 컨테이너·테이블 셀·레이아웃 셀 내부는 중첩 캔버스 그리드 기준
 function nestedItemsJSX(children, indent) {
-  return gridJSX(children, indent)
+  return gridJSX(children, indent, GRID_COLS, NESTED_GRID)
 }
 
 function tableContainerJSX(item, indent) {
@@ -201,21 +216,22 @@ function tableContainerJSX(item, indent) {
   ].join('\n')
 }
 
-function itemToJSX(item, indent = '      ') {
-  const { type, props = {}, children = [] } = item
+function itemToJSX(item, indent = '      ', grid = MAIN_GRID) {
+  const { type, props = {}, children = [], layout } = item
+  const height = layout?.h != null ? contentHeight(layout.h, grid) : null
 
   if (type === 'Container') {
     const inner = children.length
       ? '\n' + nestedItemsJSX(children, indent + '  ') + '\n' + indent
       : ''
-    return `${indent}<div style={{ padding: 16, position: 'relative', minHeight: 200 }}>${inner}</div>`
+    return `${indent}<div style={{ padding: 16, position: 'relative', minHeight: ${height ?? 200} }}>${inner}</div>`
   }
 
   if (type === 'TableContainer') {
     return tableContainerJSX(item, indent)
   }
 
-  return simpleComponentJSX(type, props, indent)
+  return simpleComponentJSX(type, props, indent, height)
 }
 
 function layoutTemplateJSX(template, layoutChildren, indent = '    ') {

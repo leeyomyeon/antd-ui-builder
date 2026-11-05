@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react'
 import { App as AntApp, ConfigProvider, theme, Button, Tooltip } from 'antd'
 import ComponentPalette from './components/ComponentPalette'
 import Canvas from './components/Canvas'
@@ -7,27 +7,48 @@ import OverlayLayer from './components/OverlayLayer'
 import LayoutBuilder from './pages/LayoutBuilder'
 import { saveProject, loadProject } from './utils/firebase'
 
+const THEME_KEY = 'ui-builder-theme'
+
+// antd 토큰은 파생 색 계산 때문에 CSS 변수 대신 실제 값으로 지정 (index.css 토큰과 맞춤)
+const ANTD_THEMES = {
+  dark: {
+    algorithm: theme.darkAlgorithm,
+    token: { colorPrimary: '#6366f1', borderRadius: 5, colorBgContainer: '#1a1a1a', colorBorder: '#2a2a2a' },
+  },
+  light: {
+    algorithm: theme.defaultAlgorithm,
+    token: { colorPrimary: '#6366f1', borderRadius: 5 },
+  },
+}
+
+function getInitialTheme() {
+  try {
+    const saved = localStorage.getItem(THEME_KEY)
+    if (saved === 'dark' || saved === 'light') return saved
+  } catch {}
+  return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+}
+
 export default function App() {
+  const [themeMode, setThemeMode] = useState(getInitialTheme)
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = themeMode
+    try { localStorage.setItem(THEME_KEY, themeMode) } catch {}
+  }, [themeMode])
+
+  const toggleTheme = () => setThemeMode(m => (m === 'dark' ? 'light' : 'dark'))
+
   return (
-    <ConfigProvider
-      theme={{
-        algorithm: theme.darkAlgorithm,
-        token: {
-          colorPrimary: '#6366f1',
-          borderRadius: 5,
-          colorBgContainer: '#1a1a1a',
-          colorBorder: '#2a2a2a',
-        },
-      }}
-    >
+    <ConfigProvider theme={ANTD_THEMES[themeMode]}>
       <AntApp component={false}>
-        <Builder />
+        <Builder themeMode={themeMode} onToggleTheme={toggleTheme} />
       </AntApp>
     </ConfigProvider>
   )
 }
 
-function Builder() {
+function Builder({ themeMode, onToggleTheme }) {
   const { message } = AntApp.useApp()
   const [activeTab, setActiveTab] = useState('canvas') // 'canvas' | 'layout'
   const [items, setItems] = useState([])
@@ -155,8 +176,8 @@ function Builder() {
 
         {/* 상단 툴바 */}
         <div style={{
-          height: 44, background: '#111',
-          borderBottom: '1px solid #1e1e1e',
+          height: 44, background: 'var(--bg-toolbar)',
+          borderBottom: '1px solid var(--line-faint)',
           display: 'flex', alignItems: 'center',
           padding: '0 16px', gap: 0, flexShrink: 0,
           zIndex: 10, position: 'relative',
@@ -181,7 +202,7 @@ function Builder() {
                 height: '100%',
                 display: 'flex', alignItems: 'center',
                 fontSize: 12, fontWeight: 500,
-                color: activeTab === tab.key ? '#6366f1' : '#555',
+                color: activeTab === tab.key ? '#6366f1' : 'var(--text-subtle)',
                 borderBottom: `2px solid ${activeTab === tab.key ? '#6366f1' : 'transparent'}`,
                 cursor: 'pointer',
                 transition: 'all 0.15s',
@@ -212,7 +233,12 @@ function Builder() {
                 </Tooltip>
               </>
             )}
-            <div style={{ fontSize: 11, color: '#444' }}>antd + react-grid-layout</div>
+            <Tooltip title={themeMode === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환'}>
+              <Button size="small" onClick={onToggleTheme} style={{ fontSize: 11 }}>
+                {themeMode === 'dark' ? '☀ 라이트' : '☾ 다크'}
+              </Button>
+            </Tooltip>
+            <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>antd + react-grid-layout</div>
           </div>
         </div>
 
@@ -251,12 +277,12 @@ function Builder() {
               <div
                 onMouseDown={handleMouseDown}
                 style={{
-                  width: 4, background: '#1e1e1e',
+                  width: 4, background: 'var(--line-faint)',
                   cursor: 'col-resize', flexShrink: 0,
                   transition: 'background 0.15s',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#6366f1' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#1e1e1e' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--line-faint)' }}
               />
 
               <CodePreview

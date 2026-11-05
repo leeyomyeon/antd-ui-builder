@@ -2,11 +2,13 @@ import React, { useLayoutEffect, useRef, useState } from 'react'
 import GridLayout from 'react-grid-layout'
 import CanvasItem from './CanvasItem'
 import LayoutCanvas from './LayoutCanvas'
+import { applySizeRule, clampDefaultH, getResizeHandles, MAIN_GRID } from '../utils/sizeRules'
 
 const COLS = 12
-const ROW_HEIGHT = 40
+const ROW_HEIGHT = MAIN_GRID.rowHeight
 const CANVAS_PADDING = 16
 const MIN_GRID_WIDTH = 600
+const RESIZE_HANDLES = ['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']
 
 export default function Canvas({ items, setItems, templates, selectedLayoutId, onSelectLayout, layoutChildren, onLayoutChildrenChange }) {
   const scrollerRef = useRef(null)
@@ -49,7 +51,7 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
         x: Math.max(0, gridX),
         y: Math.max(0, gridY),
         w: componentDef.defaultW,
-        h: componentDef.defaultH,
+        h: clampDefaultH(componentDef.type, componentDef.defaultH),
       }
     }
     setItems(prev => [...prev, newItem])
@@ -98,8 +100,10 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
   }
 
   const layout = items.map(item => ({
-    ...item.layout,
+    ...applySizeRule(item.layout, item.type),
     i: item.id,
+    // 높이 고정 타입은 가로 핸들만 표시
+    resizeHandles: getResizeHandles(item.type, RESIZE_HANDLES),
     isDraggable: item.mergeMode ? false : undefined,
     isResizable: item.mergeMode ? false : undefined,
   }))
@@ -109,7 +113,7 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
       position: 'absolute',
       top: 0, left: 0, right: 0, bottom: 0,
       overflow: 'auto',
-      background: '#0f0f0f',
+      background: 'var(--bg-canvas)',
       display: 'flex',
       flexDirection: 'column',
     }}>
@@ -136,13 +140,13 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
             gap: 12, pointerEvents: 'none',
           }}>
             <div style={{ fontSize: 40, opacity: 0.15 }}>⊞</div>
-            <div style={{ color: '#333', fontSize: 13 }}>왼쪽 팔레트에서 컴포넌트를 드래그하세요</div>
+            <div style={{ color: 'var(--text-placeholder)', fontSize: 13 }}>왼쪽 팔레트에서 컴포넌트를 드래그하세요</div>
           </div>
         )}
 
         <div style={{
           position: 'absolute', inset: 0,
-          backgroundImage: 'radial-gradient(circle, #2a2a2a 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, var(--line-strong) 1px, transparent 1px)',
           backgroundSize: '24px 24px',
           pointerEvents: 'none', opacity: 0.6,
         }} />
@@ -157,8 +161,8 @@ export default function Canvas({ items, setItems, templates, selectedLayoutId, o
             onLayoutChange={handleLayoutChange}
             isDraggable
             isResizable
-            margin={[8, 8]}
-            resizeHandles={['s', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne']}
+            margin={[8, MAIN_GRID.marginY]}
+            resizeHandles={RESIZE_HANDLES}
             containerPadding={[0, 0]}
           >
             {items.map(item => (

@@ -24,17 +24,28 @@ export default function renderComponent(type, props) {
     case 'Button': return <Button type="primary" {...p}>{props.children}</Button>
     case 'Button.Default': return <Button {...p}>{props.children}</Button>
     case 'Button.Danger': return <Button danger {...p}>{props.children}</Button>
+    // Table/List/Card는 아이템 높이를 채우고, 넘치는 내용은 안에서 스크롤
     case 'Table': return (
-      <Table size="small"
-        dataSource={[{ key: 1, name: '홍길동', age: 30 }, { key: 2, name: '김철수', age: 25 }]}
-        columns={[{ title: '이름', dataIndex: 'name' }, { title: '나이', dataIndex: 'age' }]}
-        pagination={false} {...p} />
+      <div style={{ height: '100%', overflow: 'auto' }}>
+        <Table size="small"
+          dataSource={[{ key: 1, name: '홍길동', age: 30 }, { key: 2, name: '김철수', age: 25 }]}
+          columns={[{ title: '이름', dataIndex: 'name' }, { title: '나이', dataIndex: 'age' }]}
+          pagination={false} {...p} />
+      </div>
     )
     case 'List': return (
-      <List size="small" dataSource={['항목 1', '항목 2', '항목 3']}
-        renderItem={item => <List.Item>{item}</List.Item>} {...p} />
+      <div style={{ height: '100%', overflow: 'auto' }}>
+        <List size="small" dataSource={['항목 1', '항목 2', '항목 3']}
+          renderItem={item => <List.Item>{item}</List.Item>} {...p} />
+      </div>
     )
-    case 'Card': return <Card size="small" {...p}><Text type="secondary">카드 내용</Text></Card>
+    case 'Card': return (
+      <Card size="small" {...p}
+        style={{ height: '100%', display: 'flex', flexDirection: 'column', ...p.style }}
+        styles={{ body: { flex: 1, minHeight: 0, overflow: 'auto' } }}>
+        <Text type="secondary">카드 내용</Text>
+      </Card>
+    )
     case 'Tag': return <Tag {...p}>{props.children}</Tag>
     case 'Badge': return <Badge {...p}><Avatar shape="square">예시</Avatar></Badge>
     case 'Avatar': return <Avatar {...p}>U</Avatar>
@@ -44,6 +55,6 @@ export default function renderComponent(type, props) {
     case 'Divider': return <Divider {...p} />
     case 'Typography.Title': return <Title {...p}>{props.children}</Title>
     case 'Typography.Text': return <Text {...p}>{props.children}</Text>
-    default: return <div style={{ color: '#666', fontSize: 12 }}>{type}</div>
+    default: return <div style={{ color: 'var(--text-dim)', fontSize: 12 }}>{type}</div>
   }
 }

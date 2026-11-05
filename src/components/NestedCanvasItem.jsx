@@ -5,8 +5,8 @@ export default function NestedCanvasItem({ item, onRemove }) {
   return (
     <div style={{
       width: '100%', height: '100%',
-      background: '#1c1c1c',
-      border: '1px solid #333',
+      background: 'var(--bg-nested)',
+      border: '1px solid var(--line-heavy)',
       borderRadius: 4,
       position: 'relative',
       overflow: 'hidden',
@@ -16,7 +16,7 @@ export default function NestedCanvasItem({ item, onRemove }) {
     }}>
       <div style={{
         position: 'absolute', top: 3, left: 6,
-        fontSize: 9, color: '#444', pointerEvents: 'none', userSelect: 'none',
+        fontSize: 9, color: 'var(--text-faint)', pointerEvents: 'none', userSelect: 'none',
       }}>
         {item.type}
       </div>
@@ -28,11 +28,11 @@ export default function NestedCanvasItem({ item, onRemove }) {
           position: 'absolute', top: 0, right: 0,
           width: 24, height: 24,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', fontSize: 10, color: '#555', zIndex: 100,
+          cursor: 'pointer', fontSize: 10, color: 'var(--text-subtle)', zIndex: 100,
           borderRadius: '0 4px 0 4px',
         }}
         onMouseEnter={e => { e.currentTarget.style.background = '#ff4d4f'; e.currentTarget.style.color = '#fff' }}
-        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#555' }}
+        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-subtle)' }}
       >
         ✕
       </div>

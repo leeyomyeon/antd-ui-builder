@@ -34,18 +34,18 @@ export default function ComponentPalette({ onAddOverlay, overlays }) {
   return (
     <div style={{
       width: 200,
-      background: '#141414',
-      borderRight: '1px solid #222',
+      background: 'var(--bg-panel)',
+      borderRight: '1px solid var(--line)',
       overflow: 'auto',
       flexShrink: 0,
     }}>
       <div style={{
         padding: '12px 14px',
-        borderBottom: '1px solid #222',
+        borderBottom: '1px solid var(--line)',
         fontSize: 11,
         fontWeight: 600,
         letterSpacing: '0.08em',
-        color: '#666',
+        color: 'var(--text-dim)',
         textTransform: 'uppercase',
       }}>
         Components
@@ -61,7 +61,7 @@ export default function ComponentPalette({ onAddOverlay, overlays }) {
             cursor: 'pointer',
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             userSelect: 'none', letterSpacing: '0.06em', textTransform: 'uppercase',
-            background: '#141414',
+            background: 'var(--bg-panel)',
           }}
         >
           Overlay
@@ -79,11 +79,11 @@ export default function ComponentPalette({ onAddOverlay, overlays }) {
                   style={{
                     margin: '2px 8px',
                     padding: '7px 10px',
-                    background: added ? '#1a1a2e' : '#1a1a1a',
-                    border: `1px solid ${added ? '#6366f144' : '#2a2a2a'}`,
+                    background: added ? 'var(--bg-accent-soft)' : 'var(--bg-control)',
+                    border: `1px solid ${added ? '#6366f144' : 'var(--line-strong)'}`,
                     borderRadius: 5,
                     fontSize: 12,
-                    color: added ? '#6366f1' : '#aaa',
+                    color: added ? '#6366f1' : 'var(--text-secondary)',
                     cursor: added ? 'default' : 'pointer',
                     userSelect: 'none',
                     transition: 'all 0.15s',
@@ -91,15 +91,15 @@ export default function ComponentPalette({ onAddOverlay, overlays }) {
                   }}
                   onMouseEnter={e => {
                     if (added) return
-                    e.currentTarget.style.background = '#1f1f1f'
+                    e.currentTarget.style.background = 'var(--bg-elevated)'
                     e.currentTarget.style.borderColor = '#6366f1'
-                    e.currentTarget.style.color = '#c4c4ff'
+                    e.currentTarget.style.color = 'var(--text-accent)'
                   }}
                   onMouseLeave={e => {
                     if (added) return
-                    e.currentTarget.style.background = '#1a1a1a'
-                    e.currentTarget.style.borderColor = '#2a2a2a'
-                    e.currentTarget.style.color = '#aaa'
+                    e.currentTarget.style.background = 'var(--bg-control)'
+                    e.currentTarget.style.borderColor = 'var(--line-strong)'
+                    e.currentTarget.style.color = 'var(--text-secondary)'
                   }}
                 >
                   <span style={{ fontSize: 10, color: added ? '#6366f1' : '#6366f1' }}>
@@ -114,7 +114,7 @@ export default function ComponentPalette({ onAddOverlay, overlays }) {
       </div>
 
       {/* 구분선 */}
-      <div style={{ height: 1, background: '#222', margin: '4px 0' }} />
+      <div style={{ height: 1, background: 'var(--line)', margin: '4px 0' }} />
 
       {/* 일반 컴포넌트 카테고리 */}
       {COMPONENT_PALETTE.map(group => (
@@ -123,11 +123,11 @@ export default function ComponentPalette({ onAddOverlay, overlays }) {
             onClick={() => toggleCategory(group.category)}
             style={{
               padding: '8px 14px',
-              fontSize: 11, fontWeight: 600, color: '#555',
+              fontSize: 11, fontWeight: 600, color: 'var(--text-subtle)',
               cursor: 'pointer',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
               userSelect: 'none', letterSpacing: '0.06em', textTransform: 'uppercase',
-              background: '#141414',
+              background: 'var(--bg-panel)',
             }}
           >
             {group.category}
@@ -146,24 +146,24 @@ export default function ComponentPalette({ onAddOverlay, overlays }) {
                   style={{
                     margin: '2px 8px',
                     padding: '7px 10px',
-                    background: '#1a1a1a',
-                    border: '1px solid #2a2a2a',
+                    background: 'var(--bg-control)',
+                    border: '1px solid var(--line-strong)',
                     borderRadius: 5,
-                    fontSize: 12, color: '#aaa',
+                    fontSize: 12, color: 'var(--text-secondary)',
                     cursor: 'grab',
                     userSelect: 'none',
                     transition: 'all 0.15s',
                     display: 'flex', alignItems: 'center', gap: 7,
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.background = '#1f1f1f'
+                    e.currentTarget.style.background = 'var(--bg-elevated)'
                     e.currentTarget.style.borderColor = '#6366f1'
-                    e.currentTarget.style.color = '#c4c4ff'
+                    e.currentTarget.style.color = 'var(--text-accent)'
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.background = '#1a1a1a'
-                    e.currentTarget.style.borderColor = '#2a2a2a'
-                    e.currentTarget.style.color = '#aaa'
+                    e.currentTarget.style.background = 'var(--bg-control)'
+                    e.currentTarget.style.borderColor = 'var(--line-strong)'
+                    e.currentTarget.style.color = 'var(--text-secondary)'
                   }}
                 >
                   <span style={{ fontSize: 10, color: '#6366f1' }}>⠿</span>

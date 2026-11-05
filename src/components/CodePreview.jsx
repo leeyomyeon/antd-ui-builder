@@ -3,7 +3,6 @@ import { App, Switch } from 'antd'
 import { generateCode } from '../utils/codeGenerator'
 import Prism from 'prismjs'
 import 'prismjs/components/prism-jsx'
-import 'prismjs/themes/prism-tomorrow.css'
 
 export default function CodePreview({ items, overlays = [], onToggleOverlay, onRemoveOverlay, selectedTemplate = null, layoutChildren = {}, width = 320 }) {
   const { message } = App.useApp()
@@ -28,8 +27,8 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
       width,
       minWidth: 200,
       maxWidth: 600,
-      background: '#1d1f21',
-      borderLeft: '1px solid #222',
+      background: 'var(--code-bg)',
+      borderLeft: '1px solid var(--line)',
       display: 'flex',
       flexDirection: 'column',
       flexShrink: 0,
@@ -37,8 +36,8 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
       {/* 탭 헤더 */}
       <div style={{
         display: 'flex',
-        borderBottom: '1px solid #222',
-        background: '#161719',
+        borderBottom: '1px solid var(--line)',
+        background: 'var(--code-head)',
         flexShrink: 0,
       }}>
         {['canvas', 'overlay'].map(t => (
@@ -54,7 +53,7 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
               letterSpacing: '0.06em',
               textTransform: 'uppercase',
               cursor: 'pointer',
-              color: tab === t ? '#6366f1' : '#444',
+              color: tab === t ? '#6366f1' : 'var(--text-faint)',
               borderBottom: `2px solid ${tab === t ? '#6366f1' : 'transparent'}`,
               transition: 'all 0.15s',
             }}
@@ -69,17 +68,17 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
         <>
           <div style={{
             padding: '8px 14px',
-            borderBottom: '1px solid #1e1e1e',
+            borderBottom: '1px solid var(--line-faint)',
             display: 'flex',
             justifyContent: 'flex-end',
           }}>
             <button
               onClick={handleCopy}
               style={{
-                background: copied ? '#166534' : '#1a1a1a',
-                border: `1px solid ${copied ? '#16a34a' : '#333'}`,
+                background: copied ? '#166534' : 'var(--bg-control)',
+                border: `1px solid ${copied ? '#16a34a' : 'var(--line-heavy)'}`,
                 borderRadius: 4,
-                color: copied ? '#4ade80' : '#888',
+                color: copied ? '#4ade80' : 'var(--text-muted)',
                 fontSize: 11,
                 padding: '3px 10px',
                 cursor: 'pointer',
@@ -98,8 +97,8 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
 
           <div style={{
             padding: '8px 14px',
-            borderTop: '1px solid #1a1a1a',
-            fontSize: 10, color: '#444',
+            borderTop: '1px solid var(--bg-control)',
+            fontSize: 10, color: 'var(--text-faint)',
             display: 'flex', justifyContent: 'space-between',
           }}>
             <span>{items.length}개 컴포넌트</span>
@@ -116,7 +115,7 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
               height: '100%', gap: 10,
-              color: '#333', fontSize: 12,
+              color: 'var(--text-placeholder)', fontSize: 12,
             }}>
               <div style={{ fontSize: 28, opacity: 0.2 }}>⧉</div>
               왼쪽 팔레트에서 Overlay를 추가하세요
@@ -128,7 +127,7 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
                   key={overlay.id}
                   style={{
                     padding: '10px 14px',
-                    borderBottom: '1px solid #1e1e1e',
+                    borderBottom: '1px solid var(--line-faint)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 8,
@@ -143,24 +142,24 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
                     />
                     <span style={{
                       fontSize: 12, flex: 1,
-                      color: overlay.visible ? '#c4c4ff' : '#666',
+                      color: overlay.visible ? 'var(--text-accent)' : 'var(--text-dim)',
                     }}>
                       {overlay.label}
                     </span>
                     <div
                       onClick={() => onRemoveOverlay(overlay.id)}
                       style={{
-                        fontSize: 10, color: '#444', cursor: 'pointer',
+                        fontSize: 10, color: 'var(--text-faint)', cursor: 'pointer',
                         padding: '2px 5px', borderRadius: 3,
-                        border: '1px solid #2a2a2a',
+                        border: '1px solid var(--line-strong)',
                       }}
                       onMouseEnter={e => {
                         e.currentTarget.style.color = '#ff4d4f'
                         e.currentTarget.style.borderColor = '#ff4d4f'
                       }}
                       onMouseLeave={e => {
-                        e.currentTarget.style.color = '#444'
-                        e.currentTarget.style.borderColor = '#2a2a2a'
+                        e.currentTarget.style.color = 'var(--text-faint)'
+                        e.currentTarget.style.borderColor = 'var(--line-strong)'
                       }}
                     >
                       ✕
@@ -171,15 +170,15 @@ export default function CodePreview({ items, overlays = [], onToggleOverlay, onR
                   <div style={{ display: 'flex', gap: 6 }}>
                     <span style={{
                       fontSize: 9, padding: '2px 6px',
-                      background: '#1a1a2e', color: '#6366f1',
+                      background: 'var(--bg-accent-soft)', color: '#6366f1',
                       borderRadius: 3, border: '1px solid #6366f133',
                     }}>
                       {overlay.position}
                     </span>
                     <span style={{
                       fontSize: 9, padding: '2px 6px',
-                      background: overlay.visible ? '#14291a' : '#1a1a1a',
-                      color: overlay.visible ? '#4ade80' : '#555',
+                      background: overlay.visible ? 'var(--bg-success-soft)' : 'var(--bg-control)',
+                      color: overlay.visible ? '#4ade80' : 'var(--text-subtle)',
                       borderRadius: 3,
                     }}>
                       {overlay.visible ? 'visible' : 'hidden'}

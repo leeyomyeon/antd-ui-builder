@@ -23,10 +23,10 @@ export default function OverlayLayer({ overlays, onToggle }) {
         }}>
           {topAlerts.map(overlay => {
             const colorMap = {
-              info:    { bg: '#111d2c', border: '#15395b', icon: 'ℹ', color: '#4096ff' },
-              success: { bg: '#0d2a1a', border: '#1a4a2e', icon: '✓', color: '#52c41a' },
-              warning: { bg: '#2a1f0a', border: '#4a3510', icon: '⚠', color: '#faad14' },
-              error:   { bg: '#2a0f0f', border: '#4a1a1a', icon: '✕', color: '#ff4d4f' },
+              info:    { bg: 'var(--alert-info-bg)', border: 'var(--alert-info-border)', icon: 'ℹ', color: '#4096ff' },
+              success: { bg: 'var(--alert-success-bg)', border: 'var(--alert-success-border)', icon: '✓', color: '#52c41a' },
+              warning: { bg: 'var(--alert-warning-bg)', border: 'var(--alert-warning-border)', icon: '⚠', color: '#faad14' },
+              error:   { bg: 'var(--alert-error-bg)', border: 'var(--alert-error-border)', icon: '✕', color: '#ff4d4f' },
             }
             const type = overlay.props.type || 'info'
             const c = colorMap[type]
@@ -55,7 +55,7 @@ export default function OverlayLayer({ overlays, onToggle }) {
                     </div>
                   )}
                   {overlay.props.description && (
-                    <div style={{ color: '#888', fontSize: 12, marginTop: 2 }}>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 12, marginTop: 2 }}>
                       {overlay.props.description}
                     </div>
                   )}
@@ -63,11 +63,11 @@ export default function OverlayLayer({ overlays, onToggle }) {
                 <span
                   onClick={() => onToggle(overlay.id, false)}
                   style={{
-                    color: '#555', cursor: 'pointer', fontSize: 12,
+                    color: 'var(--text-subtle)', cursor: 'pointer', fontSize: 12,
                     lineHeight: '20px', flexShrink: 0, padding: '0 2px',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#fff' }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#555' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)' }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)' }}
                 >
                   ✕
                 </span>
@@ -115,8 +115,8 @@ export default function OverlayLayer({ overlays, onToggle }) {
           }}
         >
           <div style={{
-            background: '#1f1f1f',
-            border: '1px solid #333',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--line-heavy)',
             borderRadius: 8,
             width: '80%', maxWidth: 480,
             maxHeight: '80%',
@@ -126,36 +126,36 @@ export default function OverlayLayer({ overlays, onToggle }) {
           }}>
             <div style={{
               padding: '14px 16px',
-              borderBottom: '1px solid #333',
+              borderBottom: '1px solid var(--line-heavy)',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#e0e0e0' }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>
                 {overlay.props.title}
               </span>
               <span
                 onClick={() => onToggle(overlay.id, false)}
-                style={{ color: '#555', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
-                onMouseEnter={e => { e.currentTarget.style.color = '#fff' }}
-                onMouseLeave={e => { e.currentTarget.style.color = '#555' }}
+                style={{ color: 'var(--text-subtle)', cursor: 'pointer', fontSize: 16, lineHeight: 1 }}
+                onMouseEnter={e => { e.currentTarget.style.color = 'var(--text)' }}
+                onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-subtle)' }}
               >✕</span>
             </div>
-            <div style={{ padding: '16px', color: '#aaa', fontSize: 13, flex: 1, overflow: 'auto' }}>
+            <div style={{ padding: '16px', color: 'var(--text-secondary)', fontSize: 13, flex: 1, overflow: 'auto' }}>
               {overlay.props.children}
             </div>
             <div style={{
               padding: '10px 16px',
-              borderTop: '1px solid #333',
+              borderTop: '1px solid var(--line-heavy)',
               display: 'flex', justifyContent: 'flex-end', gap: 8,
             }}>
               <button
                 onClick={() => onToggle(overlay.id, false)}
                 style={{
                   padding: '5px 14px', fontSize: 12, borderRadius: 4,
-                  background: 'transparent', border: '1px solid #444',
-                  color: '#aaa', cursor: 'pointer',
+                  background: 'transparent', border: '1px solid var(--text-faint)',
+                  color: 'var(--text-secondary)', cursor: 'pointer',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = '#666' }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = '#444' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--text-dim)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--text-faint)' }}
               >취소</button>
               <button
                 onClick={() => onToggle(overlay.id, false)}
